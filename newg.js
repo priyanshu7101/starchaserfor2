@@ -144,7 +144,7 @@ function keyRoutine() {
   if (keys.get(""+39)==1)b2.addTimed(new timed2d(power, 0, time1,0));
 
   if (mobile)
-  {let yMove=map(rotationX/rotationZ,-0.1,0.2,-1,1,true),xMove=map(rotationY/rotationZ,-0.2,0.2,-1,1,true);
+  {let yMove=map(rotationX,-30,30,-1,1,true),xMove=map(rotationY,-30,30,-1,1,true);
     b1.addTimed(new timed2d(0, power*yMove,0, time1));
     b1.addTimed(new timed2d(power*xMove , 0, time1,0));
   }
