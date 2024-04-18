@@ -5,9 +5,11 @@ v1.0
 
 -A star to chase,hence the name
 
-v2.0 wip
+v2.0 
 -A mobile version single player used with accelerometer data,mode changes on resolution ratio
 
--In game random events
-
 -streak system i.e. upto 5 extra points for faster star chasing
+
+-v3.0 wip
+
+-In game random events
