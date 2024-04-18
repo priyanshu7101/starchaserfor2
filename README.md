@@ -1,4 +1,4 @@
-made with P5 
+-Made with P5-
 
 v1.0
 -Two ships with individual controls for wasd and arrow keys
