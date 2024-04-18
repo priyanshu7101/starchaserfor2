@@ -1,20 +1,22 @@
-let file;
+let hit_sound1;
 let b1, b2;
 let keys;
-let ppos, scaling;
-let time;
+let ppos, scaling,phone_scaling,pc_scaling;
+let time=0;
 let stars=[];
 let rocket=[];
 let flame, flame2, cold;
 let l1, l2;
 let l1l2=0.99;
 let backStars=200;
+let mobile=false;
+
+
 function preload(){
-  file = createAudio('data/hit.wav');
-  file.volume(0.25);
+  hit_sound1 = createAudio('data/hit.wav');
+  hit_sound1.volume(0.25);
   for (let i=0; i<4; i++) {
-    //stars[i]=loadImage("data/"+(1+i)+".png");
-    stars[i]=loadImage("data/1.png");
+    stars[i]=loadImage("data/"+(i+1)+".png");
   }
   flame=loadImage("data/flame.png");
   flame2=loadImage("data/flame2.png");
@@ -25,14 +27,24 @@ function preload(){
 function setup() {
   createCanvas(windowWidth-1, windowHeight-1);
   scaling =createVector(0,0);
-  scaling.x=width/1280.;
-  scaling.y=height/760.;
-  b1=new boy(50, 50);
-  b2=new boy(100, 50);
   ppos=createVector(500, 500); 
-  
-  l1=createGraphics(1360, 770);
-  l2=createGraphics(int(1360*l1l2), int(770*l1l2));
+  phone_scaling=createVector(760, 1280);
+  pc_scaling=createVector(1280, 760);
+
+  mobile=height>width;
+  if (!mobile) {
+    scaling.x=width/pc_scaling.x;
+    scaling.y=height/pc_scaling.y;
+  } else {
+    scaling.x=width/phone_scaling.x;
+    scaling.y=height/phone_scaling.y;
+  }  scaling.x=width/1280.;
+
+  b1=new boy(50, 50, 1);
+  b2=new boy(100, 50, 2);
+
+  l1=createGraphics(1280, 1280);
+  l2=createGraphics(int(1280*l1l2), int(1280*l1l2));
   space(l1, 1);
   space(l2, l1l2);
   noSmooth();
@@ -40,18 +52,23 @@ function setup() {
   for (let ch=0; ch<512; ch++)
     keys.create(""+ch, 0);
   textSize(20);
-  score=-1;
   time=0;
 }
 
 function windowResized() {
   resizeCanvas(windowWidth-1, windowHeight-1);
-  scaling.x=width/1280.;
-  scaling.y=height/760.;
+  mobile=height>width;
+  if (!mobile) {
+    scaling.x=width/pc_scaling.x;
+    scaling.y=height/pc_scaling.y;
+  } else {
+    scaling.x=width/phone_scaling.x;
+    scaling.y=height/phone_scaling.y;
+  }
 }
 
 function draw() {
-  image(stars[1],0,0);
+
   scale(scaling.x, scaling.y);
   background(0);
   image(l1, b2.pos.x*(1-l1l2), b2.pos.y*(1-l1l2));
@@ -59,44 +76,60 @@ function draw() {
   //fill(0xffaaaaaa);  rect(50, 50, 600, 600);
   fill(0xffffffff);
   keyRoutine();
-  b1.update(0);
-  b2.update(1);
+  b1.update();
+  if(!mobile)b2.update();
   //text(int(b1.acc.dir.x)+","+int(b1.acc.dir.y)+"\n"+int(b1.acc.t.x)+","+int(b1.acc.t.y), 400, 400);
   //ellipse(pos.x-15, pos.y-15, 30, 30);//hitbox
   image(stars[int(time/15)%4], ppos.x-20, ppos.y-20, 40, 40);
   stroke(255);
-  strokeWeight(1);
+  
   noFill();
   textSize(40);
+  strokeWeight(5);
+
+  if(!mobile){
   rect(700, 140, 60, 60);
-  text("A", 700+20, 140+50);//a
-  rect(760, 140, 60, 60);
-  text("S", 760+20, 140+50);//s
-  rect(820, 140, 60, 60);
-  text("D", 820+20, 140+50);//d
-  rect(760, 80, 60, 60);
-  text("W", 760+20, 80+50);//w
+  rect(760, 140, 60, 60); 
+  rect(820, 140, 60, 60);  
+  rect(760, 80, 60, 60);  
   rect(1000, 140, 60, 60);
-  text("P", 1000+20, 140+50);//p
+
+  strokeWeight(1);
+  text("A", 700+20, 140+45);//a
+  text("S", 760+20, 140+45);//s
+  text("D", 820+20, 140+45);//d
+  text("W", 750+20, 80+45);//w
+  text("P", 1000+20, 140+45);//p
+
+  
   textSize(25);
   text("WASD/arrow keys\n to Move", 700, 240);
   text("O/P To Restart", 1000, 240);
+  }
+
+  strokeWeight(1);
+
   b1.points(ppos);
-  b2.points(ppos);
+  if(!mobile)b2.points(ppos);
   time++;
-  text("score="+b1.score+"\ntime="+time+"\nratio="+int(600000*b1.score/time)/100, 700, 400);
-  text("score="+b2.score+"\ntime="+time+"\nratio="+int(600000*b2.score/time)/100, 1000, 400);
+  
+
 }
 
 function keyPressed() {
-  let qwe=1;
-  keys.set(""+keyCode, qwe);
-  print(keyCode==""+char(keyCode),);
+  keys.set(""+keyCode, 1);
 }
 function keyReleased() {
-  let qwe=1;
   keys.set(""+keyCode, 0);
-  print(keys.get(""+unchar('W')))
+
+  if (keyCode==unchar('O')) {
+    b1.pos=createVector(50, 50);
+    b1.score*=0.8;
+  }
+  if (keyCode==unchar('P')) {
+    b2.pos=createVector(50, 50);
+    b2.score*=0.8;
+  }
 }
 function keyRoutine() {
   let time1=3, power=0.1;
@@ -110,13 +143,10 @@ function keyRoutine() {
   if (keys.get(""+40)==1)b2.addTimed(new timed2d(0, power,0, time1));
   if (keys.get(""+39)==1)b2.addTimed(new timed2d(power, 0, time1,0));
 
-  if (keys.get(""+unchar('O'))===1) {
-    b1.pos=new PVector(50, 50);
-    score*=0.8;
-  }
-  if (keys.get(""+unchar('P'))===1) {
-    b2.pos=new PVector(50, 50);
-    score*=0.8;
+  if (mobile)
+  {let xMove=map(rotationX/rotationZ,-0.1,0.2,-1,1),yMove=map(rotationX/rotationZ,-0.2,0.2,-1,1);
+    b1.addTimed(new timed2d(0, power*yMove,0, time1));
+    b1.addTimed(new timed2d(power*xMove , 0, time1,0));
   }
 }
 
@@ -136,42 +166,54 @@ function space( t,  k) {//makes background
  
 class boy {
 
-  constructor(a, b) {
+  constructor(a, b, i) {
     this.acc=new timed2d(0,0,0,0);
     this.score=0;
+    this.streakTime=100;
     this.pos=createVector(a, b);
     this.vel=createVector();
+    this.i=i;
+    this.streakScore=0;
   }
-  update( i) {
-    this.vel=this.vel.mult(0.90);
+  update() {
+    this.vel=this.vel.mult(0.9);
     this.vel=this.vel.add(this.acc.giveUp());
     this.pos=this.pos.add(this.vel);
-
-    this.drawBoy(i);
+    this.streakTime-=this.streakTime>0;
+    this.drawBoy();
     //ellipse(this.pos.x, this.pos.y,20,20);//hitbox
   }
   addTimed(a) {
     this.acc.addTimed(a);
     this.acc.dir.limit(1);
   }
-  drawBoy(i) {
+  drawBoy() {
     push();
     translate(this.pos.x, this.pos.y);
     rotate(atan2(this.vel.x, -this.vel.y));
     let flameSize=4*int(this.vel.mag());
-    if(i==1)image(flame2, 2-flameSize/2, 50, flameSize, flameSize);
-    else image(flame, 2-flameSize/2, 50, flameSize, flameSize);
-    image(rocket[i], -25, 0, 50, 50);
-    
+    if(this.i==1 && flameSize>0)image(flame2, 2-flameSize/2, 50, flameSize, flameSize);
+    if(this.i==2 && flameSize>0) image(flame, 2-flameSize/2, 50, flameSize, flameSize);
+    image(rocket[this.i-1], -25, 0, 50, 50);
     pop();
+
+    text("score="+Math.trunc(100*this.score)/100.+"\ntime="+int(time*1.66)/100+"\nratio="+Math.trunc(600000*this.score/time)/100,300*this.i+400-mobile*600, 400+mobile*600);
+    noFill();
+    stroke(255,2*this.streakTime);
+    if(this.streakScore>2)text(int(100*this.streakScore)/100+" X bonus",300*this.i+470-mobile*600, 390-3*(10-this.streakTime/10)+mobile*600);
+    fill(0xffffffff);
+      
+
   }
 
   points(ppo) {
     if (this.pos.dist(ppo)<30) {
       ppos=createVector(random(50, 600), random(50, 600));
-      this.score++;
-      file.stop();
-      file.play();
+      this.streakScore=1+this.streakTime/25.;
+      this.score+=this.streakScore;
+      this.streakTime=100;
+      hit_sound1.stop();
+      hit_sound1.play();
     }
     return ppo;
   }
