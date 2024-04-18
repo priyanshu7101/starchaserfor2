@@ -28,7 +28,7 @@ function setup() {
   createCanvas(windowWidth-1, windowHeight-1);
   scaling =createVector(0,0);
   ppos=createVector(500, 500); 
-  phone_scaling=createVector(760, 1280);
+  phone_scaling=createVector(512, 1280);
   pc_scaling=createVector(1280, 760);
 
   mobile=height>width;
@@ -40,8 +40,8 @@ function setup() {
     scaling.y=height/phone_scaling.y;
   }  scaling.x=width/1280.;
 
-  b1=new boy(50, 50, 1);
-  b2=new boy(100, 50, 2);
+  b1=new boy(250, 250, 1);
+  b2=new boy(300, 250, 2);
 
   l1=createGraphics(1280, 1280);
   l2=createGraphics(int(1280*l1l2), int(1280*l1l2));
@@ -144,7 +144,7 @@ function keyRoutine() {
   if (keys.get(""+39)==1)b2.addTimed(new timed2d(power, 0, time1,0));
 
   if (mobile)
-  {let yMove=map(rotationX,-30,30,-1,1,true),xMove=map(rotationY,-30,30,-1,1,true);
+  {let yMove=map(rotationX,-10,30,-1,1,true),xMove=map(rotationY,-25,25,-1,1,true);
     b1.addTimed(new timed2d(0, power*yMove,0, time1));
     b1.addTimed(new timed2d(power*xMove , 0, time1,0));
   }
