@@ -10,7 +10,7 @@ let l1, l2;
 let l1l2=0.99;
 let backStars=200;
 let mobile=false;
-
+let returnButton=false;
 
 function preload(){
   hit_sound1 = createAudio('data/hit.wav');
@@ -28,7 +28,7 @@ function setup() {
   createCanvas(windowWidth-1, windowHeight-1);
   scaling =createVector(0,0);
   ppos=createVector(500, 500); 
-  phone_scaling=createVector(512, 1280);
+  phone_scaling=createVector(700, 1280);
   pc_scaling=createVector(1280, 760);
 
   mobile=height>width;
@@ -38,7 +38,7 @@ function setup() {
   } else {
     scaling.x=width/phone_scaling.x;
     scaling.y=height/phone_scaling.y;
-  }  scaling.x=width/1280.;
+  }  
 
   b1=new boy(250, 250, 1);
   b2=new boy(300, 250, 2);
@@ -105,10 +105,15 @@ function draw() {
   textSize(25);
   text("WASD/arrow keys\n to Move", 700, 240);
   text("O/P To Restart", 1000, 240);
-  }
-
+  }else {
+  rect(400,800,250,60)
   strokeWeight(1);
-
+  text("Reset", 400+20, 800+45);
+    if (touches[0].x>400&&touches[0].x<650&&touches[0].y>800&&touches[0].y<860)
+    {b1.pos=createVector(250,250);
+     b1.score*=0.8;
+    }
+  }
   b1.points(ppos);
   if(!mobile)b2.points(ppos);
   time++;
@@ -144,7 +149,7 @@ function keyRoutine() {
   if (keys.get(""+39)==1)b2.addTimed(new timed2d(power, 0, time1,0));
 
   if (mobile)
-  {let yMove=map(rotationX,-10,30,-1,1,true),xMove=map(rotationY,-25,25,-1,1,true);
+  {let yMove=map(rotationX,-5,20,-1,1,true),xMove=map(rotationY,-25,25,-1,1,true);
     b1.addTimed(new timed2d(0, power*yMove,0, time1));
     b1.addTimed(new timed2d(power*xMove , 0, time1,0));
   }
@@ -197,17 +202,17 @@ class boy {
     image(rocket[this.i-1], -25, 0, 50, 50);
     pop();
 
-    text("score="+Math.trunc(100*this.score)/100.+"\ntime="+int(time*1.66)/100+"\nratio="+Math.trunc(600000*this.score/time)/100,300*this.i+400-mobile*600, 400+mobile*600);
+    text("score="+Math.trunc(100*this.score)/100.+"\ntime="+int(time*1.66)/100+"\nratio="+Math.trunc(600000*this.score/time)/100,300*this.i+400-mobile*600, 400+mobile*250);
     noFill();
     stroke(255,2*this.streakTime);
-    if(this.streakScore>2)text(int(100*this.streakScore)/100+" X bonus",300*this.i+470-mobile*600, 390-3*(10-this.streakTime/10)+mobile*600);
+    if(this.streakScore>2)text(int(100*this.streakScore)/100+" X bonus",300*this.i+470-mobile*600, 390-3*(10-this.streakTime/10)+mobile*250);
     fill(0xffffffff);
       
 
   }
 
   points(ppo) {
-    if (this.pos.dist(ppo)<30) {
+    if (this.pos.dist(ppo)<30+mobile*10) {
       ppos=createVector(random(50, 600), random(50, 600));
       this.streakScore=1+this.streakTime/25.;
       this.score+=this.streakScore;
