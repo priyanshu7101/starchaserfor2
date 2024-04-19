@@ -110,7 +110,7 @@ function draw() {
   strokeWeight(1);
   text("Reset", 400+20, 800+45);
     if(touches.length>0)
-    if (touches[0].x>400&&touches[0].x<650&&touches[0].y>800&&touches[0].y<860)
+    if (touches[0].x>400*scaling.x&&touches[0].x<650*scaling.x&&touches[0].y>800*scaling.y&&touches[0].y<860*scaling.y)
     {b1.pos=createVector(250,250);
      b1.score*=0.8;
     }
