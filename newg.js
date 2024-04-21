@@ -1,4 +1,4 @@
-let hit_sound1;
+let hit_sound=[];
 let b1, b2;
 let keys;
 let ppos, scaling,phone_scaling,pc_scaling;
@@ -11,10 +11,15 @@ let l1l2=0.99;
 let backStars=200;
 let mobile=false;
 let returnButton=false;
-
+let rotationXoffset,rotationYoffset;
+let center,friction;
+let disasters;
+let disaster_codes=["blindness","Wormholes","BlackHole","Asteroids","Speed Demon"];
 function preload(){
-  hit_sound1 = createAudio('data/hit.wav');
-  hit_sound1.volume(0.25);
+  hit_sound[0] = createAudio('data/hit.wav');
+  hit_sound[0].volume(0.25);
+  hit_sound[1] = createAudio('data/hit1.wav');
+  hit_sound[1].volume(0.25);
   for (let i=0; i<4; i++) {
     stars[i]=loadImage("data/"+(i+1)+".png");
   }
@@ -30,16 +35,18 @@ function setup() {
   ppos=createVector(500, 500); 
   phone_scaling=createVector(700, 1280);
   pc_scaling=createVector(1280, 760);
-
+  center=createVector();
   mobile=height>width;
   if (!mobile) {
     scaling.x=width/pc_scaling.x;
     scaling.y=height/pc_scaling.y;
+    center=p5.Vector.mult(pc_scaling,0.5);
   } else {
     scaling.x=width/phone_scaling.x;
     scaling.y=height/phone_scaling.y;
+    center=p5.Vector.mult(phone_scaling,0.5);
   }  
-
+ 
   b1=new boy(250, 250, 1);
   b2=new boy(300, 250, 2);
 
@@ -53,26 +60,40 @@ function setup() {
     keys.create(""+ch, 0);
   textSize(20);
   time=0;
+  rotationXoffset=rotationX;
+  rotationYoffset=rotationY;
+
+  disasters=new Disaster();
+  friction=0.9;
 }
 
 function windowResized() {
   resizeCanvas(windowWidth-1, windowHeight-1);
+
   mobile=height>width;
   if (!mobile) {
     scaling.x=width/pc_scaling.x;
     scaling.y=height/pc_scaling.y;
+    center=p5.Vector.mult(pc_scaling,0.5);
   } else {
     scaling.x=width/phone_scaling.x;
     scaling.y=height/phone_scaling.y;
-  }
+    center=p5.Vector.mult(phone_scaling,0.5);
+  }  
 }
 
 function draw() {
+  if(disasters.linedUp())disasters=new Disaster();
 
   scale(scaling.x, scaling.y);
   background(0);
-  image(l1, b2.pos.x*(1-l1l2), b2.pos.y*(1-l1l2));
+  image(l1, b2.pos.x*(1-l1l2), b2.pos.y*(1-l1l2)); 
   image(l2, b1.pos.x*(1-l1l2), b1.pos.y*(1-l1l2));
+
+
+ // disasters.update();
+
+
   //fill(0xffaaaaaa);  rect(50, 50, 600, 600);
   fill(0xffffffff);
   keyRoutine();
@@ -109,16 +130,23 @@ function draw() {
   rect(400,800,250,60)
   strokeWeight(1);
   text("Reset", 400+20, 800+45);
-    if(touches.length>0)
-    if (touches[0].x>400*scaling.x&&touches[0].x<650*scaling.x&&touches[0].y>800*scaling.y&&touches[0].y<860*scaling.y)
-    {b1.pos=createVector(250,250);
-     b1.score*=0.8;
-    }
+   
+    if (touches.length>0&&touches[0].x>400*scaling.x&&touches[0].x<650*scaling.x&&touches[0].y>800*scaling.y&&touches[0].y<860*scaling.y)
+    {
+      if(!returnButton)
+      {b1.pos=createVector(250,250);
+      b1.score*=0.8;
+      rotationXoffset=rotationX;
+      rotationYoffset=rotationY;
+      returnButton=true;}
+    }else {returnButton=false;}
   }
+
   b1.points(ppos);
   if(!mobile)b2.points(ppos);
   time++;
-  
+  friction=0.9;
+ 
 
 }
 
@@ -150,9 +178,8 @@ function keyRoutine() {
   if (keys.get(""+39)==1)b2.addTimed(new timed2d(power, 0, time1,0));
 
   if (mobile)
-  {let yMove=map(rotationX,-5,20,-1,1,true),xMove=map(rotationY,-25,25,-1,1,true);
-    b1.addTimed(new timed2d(0, power*yMove,0, time1));
-    b1.addTimed(new timed2d(power*xMove , 0, time1,0));
+  {let yMove=map(rotationX-rotationXoffset,-20,20,-1,1,true),xMove=map(rotationY-rotationYoffset,-25,25,-1,1,true);
+    b1.addTimed(new timed2d(power*xMove , power*yMove,time1, time1));
   }
 }
 
@@ -171,7 +198,6 @@ function space( t,  k) {//makes background
 }
  
 class boy {
-
   constructor(a, b, i) {
     this.acc=new timed2d(0,0,0,0);
     this.score=0;
@@ -182,7 +208,7 @@ class boy {
     this.streakScore=0;
   }
   update() {
-    this.vel=this.vel.mult(0.9);
+    this.vel=this.vel.mult(friction);
     this.vel=this.vel.add(this.acc.giveUp());
     this.pos=this.pos.add(this.vel);
     this.streakTime-=this.streakTime>0;
@@ -218,8 +244,8 @@ class boy {
       this.streakScore=1+this.streakTime/25.;
       this.score+=this.streakScore;
       this.streakTime=100;
-      hit_sound1.stop();
-      hit_sound1.play();
+      hit_sound[this.i-1].stop();
+      hit_sound[this.i-1].play();
     }
     return ppo;
   }
@@ -274,3 +300,79 @@ class timed2d {
 function signum(i) {
   return  int(i>=0)-int(i<=0);
 }
+//uncomment update in draw
+class Disaster{
+  constructor(){
+    this.size=150;
+    this.timeUntil=random(820,1080);
+    this.type=floor(random(5));
+    let angle=random(2*PI)
+    this.target=createVector(center.x+random(-200,200),center.y+random(-200,200));
+    this.pos=createVector(center.x+1000*Math.sin(angle),center.y+1000*Math.cos(angle));
+    this.vel=p5.Vector.sub(this.target,this.pos);
+    this.vel.setMag(8);
+  }
+  update(){
+    if(this.timeUntil>0){
+      --this.timeUntil;
+      
+    }
+    this.wormhole();
+    fill(255);
+    ellipse(this.pos.x,this.pos.y,this.size,this.size);
+    fill(0);
+    text(this.type,this.pos.x-20,this.pos.y-20);
+    this.pos.add(this.vel);
+  }
+  linedUp(){
+    return (this.timeUntil<0 && this.pos.mag()>2000);
+    
+  }
+  blackHole(){
+
+    let accDir=p5.Vector.sub(this.pos,b1.pos);
+    if(accDir.mag() <this.size){
+    accDir.setMag(0.8);
+    b1.acc.addTimed(new timed2d(accDir.x, accDir.y,1, 1));}
+
+    accDir=p5.Vector.sub(this.pos,b2.pos)
+    if(accDir.mag()<this.size){
+    accDir.setMag(0.8);
+    b2.acc.addTimed(new timed2d(accDir.x, accDir.y,1, 1));}
+
+  }
+  asteroid(){
+    let accDir=p5.Vector.sub(this.pos,b1.pos);
+    if(accDir.mag() <this.size){
+    accDir.setMag(-1);
+    b1.acc.addTimed(new timed2d(accDir.x, accDir.y,10, 2));}
+
+    accDir=p5.Vector.sub(this.pos,b2.pos)
+    if(accDir.mag()<this.size){
+    accDir.setMag(-1);
+    b2.acc.addTimed(new timed2d(accDir.x, accDir.y,10, 2));}
+
+  }
+  speedDemon(){
+    friction=0.98;
+  }
+  wormhole(){
+
+
+    let accDir=p5.Vector.sub(this.pos,b1.pos);
+    if(accDir.mag() <this.size)
+    {   
+      let teleport = p5.Vector.random2D();
+      teleport.mult(300);
+      b1.pos.add(teleport);}
+
+    accDir=p5.Vector.sub(this.pos,b2.pos)
+    if(accDir.mag()<this.size)
+    {   
+      let teleport = p5.Vector.random2D();
+      teleport.mult(300);
+      b2.pos.add(teleport);}
+
+  }
+}
+
