@@ -10,6 +10,9 @@ v2.0
 
 -streak system i.e. upto 5 extra points for faster star chasing
 
+v2.1
+-Minor changes to mobile version controls
+
 -v3.0 wip
 
 -In game random events
