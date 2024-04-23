@@ -55,6 +55,7 @@ function setup() {
   space(l1, 1);
   space(l2, l1l2);
   noSmooth();
+  angleMode(DEGREES);
   keys=createNumberDict("512",0);
   for (let ch=0; ch<512; ch++)
     keys.create(""+ch, 0);
@@ -178,7 +179,7 @@ function keyRoutine() {
   if (keys.get(""+39)==1)b2.addTimed(new timed2d(power, 0, time1,0));
 
   if (mobile)
-  {let yMove=map(asin(sin(rotationX-rotationXoffset)),-0.20,0.20,-1,1,true),xMove=map(asin(sin(rotationY-rotationYoffset)),-0.25,0.25,-1,1,true);
+  {let yMove=map(asin(sin(rotationX-rotationXoffset)),-20,20,-1,1,true),xMove=map(asin(sin(rotationY-rotationYoffset)),-25,25,-1,1,true);
    text(sin(rotationX),100,100);
     b1.addTimed(new timed2d(power*xMove , power*yMove,time1, time1));
   }
