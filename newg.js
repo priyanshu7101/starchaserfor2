@@ -178,7 +178,7 @@ function keyRoutine() {
   if (keys.get(""+39)==1)b2.addTimed(new timed2d(power, 0, time1,0));
 
   if (mobile)
-  {let yMove=map(rotationX-rotationXoffset,-20,20,-1,1,true),xMove=map(rotationY-rotationYoffset,-25,25,-1,1,true);
+  {let yMove=map(asin(sin(rotationX-rotationXoffset)),-20,20,-1,1,true),xMove=map(asin(sin(rotationY-rotationYoffset)),-25,25,-1,1,true);
     b1.addTimed(new timed2d(power*xMove , power*yMove,time1, time1));
   }
 }
