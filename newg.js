@@ -178,8 +178,8 @@ function keyRoutine() {
   if (keys.get(""+39)==1)b2.addTimed(new timed2d(power, 0, time1,0));
 
   if (mobile)
-  {let yMove=map(asin(sin(rotationX-rotationXoffset)),-20,20,-1,1,true),xMove=map(asin(sin(rotationY-rotationYoffset)),-25,25,-1,1,true);
-   text(rotationX,100,100);
+  {let yMove=map(asin(sin(rotationX-rotationXoffset)),-0.20,0.20,-1,1,true),xMove=map(asin(sin(rotationY-rotationYoffset)),-0.25,0.25,-1,1,true);
+   text(sin(rotationX),100,100);
     b1.addTimed(new timed2d(power*xMove , power*yMove,time1, time1));
   }
 }
